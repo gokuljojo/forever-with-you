@@ -5,12 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Our 4 Month Journey | A Surprise for My Love</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/@alpinejs/intersect@3.x.x/dist/cdn.min.js"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital,wght@0,400;1,400&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root { 
             --soft-pink: #FFF5F7; 
             --rose: #fb7185; 
+            --pink-gradient: linear-gradient(135deg, #FFF5F7 0%, #FFE4E6 50%, #FCE7F3 100%);
         }
         body { 
             font-family: 'Montserrat', sans-serif; 
@@ -87,6 +89,51 @@
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
             z-index: 10;
         }
+
+            /* Animated Pink Background */
+        .bg-pink-animate {
+            background: var(--pink-gradient);
+            background-size: 400% 400%;
+            animation: gradientShift 12s ease infinite;
+        }
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* 3D Floating Heart Animation */
+        .heart-particle {
+        position: absolute;
+        color: #fb7185;
+        pointer-events: none;
+        z-index: 1;
+        /* Use transition for a smoother feel if preferred, 
+           but animation is better for continuous flow */
+        animation: floatUp var(--duration) linear infinite;
+    }
+
+    @keyframes floatUp {
+        0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+        10% { opacity: var(--max-opacity); }
+        90% { opacity: var(--max-opacity); }
+        100% { transform: translateY(-120vh) rotate(360deg); opacity: 0; }
+    }
+
+    .bg-pink-animate {
+        background: linear-gradient(135deg, #FFF5F7 0%, #FFE4E6 50%, #FCE7F3 100%);
+        background-size: 400% 400%;
+        animation: gradientShift 12s ease infinite;
+    }
+
+        /* Glassmorphism for the Hero Card */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 8px 32px 0 rgba(251, 113, 133, 0.1);
+        }
     </style>
 </head>
 <body x-data="loveStory()" @keydown="handleGameInput($event)" tabindex="0">
@@ -97,13 +144,36 @@
         </button>
     </div>
 
-    <section x-show="step === 'landing'" class="h-screen flex flex-col items-center justify-center text-center p-6 bg-white">
-        <h1 class="text-8xl md:text-9xl font-stylish text-rose-400 mb-4">Hey Love ❤️</h1>
+<section x-show="step === 'landing'" 
+         x-init="setInterval(() => { 
+            const heart = document.createElement('div');
+            const size = Math.random() * 30 + 10;
+            const duration = Math.random() * 7 + 8;
+            heart.innerHTML = '❤️';
+            heart.className = 'heart-particle';
+            heart.style.left = Math.random() * 100 + '%';
+            heart.style.fontSize = size + 'px';
+            heart.style.filter = `blur(${Math.random() * 3}px)`;
+            heart.style.setProperty('--duration', duration + 's');
+            heart.style.setProperty('--max-opacity', Math.random() * 0.4 + 0.1);
+            $el.appendChild(heart);
+            setTimeout(() => heart.remove(), duration * 1000);
+         }, 400)"
+         class="h-screen flex flex-col items-center justify-center text-center p-6 bg-pink-animate relative overflow-hidden">
+    
+    <div class="glass-card z-10 p-12 md:p-20 rounded-[50px] fade-in">
+        <h1 class="text-8xl md:text-9xl font-stylish text-rose-400 mb-4 drop-shadow-sm">Hey Love ❤️</h1>
         <p class="text-gray-500 italic mb-10 text-lg tracking-widest">I made something special for you...</p>
-        <button @click="step = 'unlock'" class="bg-rose-400 text-white px-14 py-4 rounded-full shadow-lg font-bold hover:scale-105 transition-transform">
-            Start the Journey
-        </button>
-    </section>
+<div class="flex flex-col items-center gap-4">
+    <button @click="step = 'unlock'" class="bg-rose-400 text-white px-14 py-4 rounded-full shadow-lg font-bold hover:scale-110 hover:bg-rose-500 transition-all duration-300">
+        Start the Journey
+    </button>
+    <button @click="step = 'countdown'" class="border-2 border-rose-300 text-rose-400 px-10 py-3 rounded-full font-semibold hover:bg-rose-50/50 hover:scale-105 transition-all duration-300 text-sm tracking-widest uppercase">
+        View Our Countdown ⏳
+    </button>
+</div>
+    </div>
+</section>
 
     <section x-show="step === 'unlock'" class="h-screen flex items-center justify-center relative bg-white">
         <div class="bg-hearts"></div>
@@ -112,134 +182,143 @@
             <h2 class="text-3xl font-serif mb-2">Unlock Our Story</h2>
             <p class="text-sm text-gray-400 mb-8 font-semibold">Hint: Engagement Date (DD/MM/YYYY)</p>
             <input type="text" x-model="unlockDate" placeholder="-- / -- / ----" class="w-full border-b-2 border-pink-200 p-4 mb-10 text-center text-2xl tracking-widest focus:outline-none text-gray-700">
-            <button @click="verifyDate()" class="w-full bg-rose-400 text-white py-5 rounded-2xl font-bold text-xl shadow-md">Unlock</button>
+            <button @click="verifyDate()" 
+        class="w-full bg-rose-400 text-white py-5 rounded-2xl shadow-lg font-bold 
+               hover:scale-110 hover:bg-rose-500 transition-all duration-300">
+    Unlock
+</button>
         </div>
     </section>
+    <section x-show="step === 'countdown'" x-init="startTimer()" class="h-screen flex flex-col items-center justify-center bg-pink-animate relative overflow-hidden">
+    <div class="glass-card p-10 md:p-16 rounded-[40px] text-center z-10 max-w-2xl w-full mx-4">
+        <h2 class="text-4xl font-serif text-gray-700 mb-10">Counting down to our Big Day...</h2>
+        
+        <div class="flex justify-center gap-4 md:gap-8">
+            <div class="flex flex-col">
+                <div class="bg-white w-20 h-24 md:w-28 md:h-32 rounded-2xl shadow-xl flex items-center justify-center text-4xl md:text-5xl font-bold text-rose-400 border-b-4 border-rose-200" x-text="timeLeft.d">00</div>
+                <span class="mt-3 text-xs uppercase tracking-widest text-gray-400 font-bold">Days</span>
+            </div>
+            <div class="flex flex-col">
+                <div class="bg-white w-20 h-24 md:w-28 md:h-32 rounded-2xl shadow-xl flex items-center justify-center text-4xl md:text-5xl font-bold text-rose-400 border-b-4 border-rose-200" x-text="timeLeft.h">00</div>
+                <span class="mt-3 text-xs uppercase tracking-widest text-gray-400 font-bold">Hours</span>
+            </div>
+            <div class="flex flex-col">
+                <div class="bg-white w-20 h-24 md:w-28 md:h-32 rounded-2xl shadow-xl flex items-center justify-center text-4xl md:text-5xl font-bold text-rose-400 border-b-4 border-rose-200" x-text="timeLeft.m">00</div>
+                <span class="mt-3 text-xs uppercase tracking-widest text-gray-400 font-bold">Mins</span>
+            </div>
+        </div>
+        <p class="mt-12 text-rose-400 font-serif italic text-xl">June 4th, 2026</p>
+    </div>
+</section>
 
-    <section x-show="step === 'journey'" class="min-h-screen py-32 bg-white relative overflow-hidden">
+<section x-show="step === 'journey'" class="min-h-screen py-20 bg-white relative overflow-hidden">
     
-        <h2 class="text-center text-6xl font-stylish mb-32 text-rose-400">
-            Our Journey Together
-        </h2>
-    
-        <div class="max-w-6xl mx-auto px-6 relative">
-    
-            <!-- Center Line -->
-            <div class="absolute left-1/2 top-0 bottom-0 w-1 bg-pink-200 -translate-x-1/2"></div>
-    
-            <!-- ITEM 1 -->
-            <div class="timeline-item reveal flex flex-col md:flex-row items-center justify-between mb-32"
-                 x-intersect="$el.classList.add('active')">
-    
-                <div class="md:w-1/2 md:pr-12 text-center md:text-right content">
-                    <h3 class="text-3xl font-serif text-gray-700">The Day We Engaged 💍</h3>
-                    <p class="text-gray-500 mt-3 italic">The moment our forever began ❤️</p>
+    <h2 class="text-center text-6xl font-stylish mb-20 text-rose-400">Our Journey Together</h2>
+
+    <div class="max-w-6xl mx-auto px-6 relative">
+        <div class="hidden md:block absolute left-1/2 top-0 bottom-0 w-0.5 bg-pink-100 -translate-x-1/2"></div>
+
+        <div class="space-y-24">
+            <div class="relative flex flex-col md:flex-row items-center justify-between group"
+                 x-data="{ shown: false }"
+                 x-intersect.margin.-10%="shown = true">
+                
+                <div class="w-full md:w-[45%] transition-all duration-1000 transform"
+                     :class="shown ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-20'">
+                    <div class="relative p-2 bg-white shadow-2xl rounded-3xl rotate-[-2deg]">
+                        <img src="./img/1.jpg" class="rounded-2xl w-full object-cover aspect-video" onerror="this.src='https://picsum.photos/400/300?random=1'">
+                    </div>
                 </div>
-    
-                <div class="dot"></div>
-    
-                <div class="md:w-1/2 md:pl-12 mt-6 md:mt-0 image">
-                    <img src="img/1.jpg" class="rounded-2xl shadow-xl w-full max-w-md mx-auto">
-                </div>
-            </div>
-    
-            <!-- ITEM 2 -->
-            <div class="timeline-item reveal flex flex-col md:flex-row-reverse items-center justify-between mb-32"
-                 x-intersect="$el.classList.add('active')">
-    
-                <div class="md:w-1/2 md:pl-12 text-center md:text-left content">
-                    <h3 class="text-3xl font-serif text-gray-700">First Sunset 🌅</h3>
-                    <p class="text-gray-500 mt-3 italic">Golden skies, warmer hearts ✨</p>
-                </div>
-    
-                <div class="dot"></div>
-    
-                <div class="md:w-1/2 md:pr-12 mt-6 md:mt-0 image">
-                    <img src="img/2.png" class="rounded-2xl shadow-xl w-full max-w-md mx-auto">
+
+                <div class="hidden md:block absolute left-1/2 -translate-x-1/2 w-4 h-4 bg-rose-300 rounded-full border-4 border-white z-10"></div>
+
+                <div class="w-full md:w-[45%] mt-8 md:mt-0 text-center md:text-left transition-all duration-1000 delay-200"
+                     :class="shown ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-20'">
+                    <span class="text-rose-300 font-bold tracking-widest text-sm">23 NOVEMBER 2025</span>
+                    <h3 class="text-3xl font-serif text-gray-800 mt-2">The Day We Engaged</h3>
+                    <p class="text-gray-500 mt-4 leading-relaxed italic">The moment I knew "forever" wasn't long enough with you.</p>
                 </div>
             </div>
-    
-            <!-- ITEM 3 -->
-            <div class="timeline-item reveal flex flex-col md:flex-row items-center justify-between mb-32"
-                 x-intersect="$el.classList.add('active')">
-    
-                <div class="md:w-1/2 md:pr-12 text-center md:text-right content">
-                    <h3 class="text-3xl font-serif text-gray-700">First Trip ✈️</h3>
-                    <p class="text-gray-500 mt-3 italic">Every place felt like home with you 💕</p>
+
+            <div class="relative flex flex-col md:flex-row-reverse items-center justify-between group"
+                 x-data="{ shown: false }"
+                 x-intersect.margin.-10%="shown = true">
+                
+                <div class="w-full md:w-[45%] transition-all duration-1000 transform"
+                     :class="shown ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-20'">
+                    <div class="relative p-2 bg-white shadow-2xl rounded-3xl rotate-[2deg]">
+                        <img src="./img/2.png" class="rounded-2xl w-full object-cover aspect-video">
+                    </div>
                 </div>
-    
-                <div class="dot"></div>
-    
-                <div class="md:w-1/2 md:pl-12 mt-6 md:mt-0 image">
-                    <img src="img/3.jpg" class="rounded-2xl shadow-xl w-full max-w-md mx-auto">
-                </div>
-            </div>
-    
-            <!-- ITEM 4 -->
-            <div class="timeline-item reveal flex flex-col md:flex-row-reverse items-center justify-between mb-32"
-                 x-intersect="$el.classList.add('active')">
-    
-                <div class="md:w-1/2 md:pl-12 text-center md:text-left content">
-                    <h3 class="text-3xl font-serif text-gray-700">Our Laughs 😂</h3>
-                    <p class="text-gray-500 mt-3 italic">We laugh at the dumbest things… and I love it</p>
-                </div>
-    
-                <div class="dot"></div>
-    
-                <div class="md:w-1/2 md:pr-12 mt-6 md:mt-0 image">
-                    <img src="https://picsum.photos/500/350?random=4" class="rounded-2xl shadow-xl w-full max-w-md mx-auto">
+
+                <div class="hidden md:block absolute left-1/2 -translate-x-1/2 w-4 h-4 bg-rose-300 rounded-full border-4 border-white z-10"></div>
+
+                <div class="w-full md:w-[45%] mt-8 md:mt-0 text-center md:text-right transition-all duration-1000 delay-200"
+                     :class="shown ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-20'">
+                    <span class="text-rose-300 font-bold tracking-widest text-sm">DECEMBER 2025</span>
+                    <h3 class="text-3xl font-serif text-gray-800 mt-2">First Sunset</h3>
+                    <p class="text-gray-500 mt-4 leading-relaxed italic">Watching the sky change colors, but I couldn't take my eyes off you.</p>
                 </div>
             </div>
-    
-            <!-- ITEM 5 -->
-            <div class="timeline-item reveal flex flex-col md:flex-row items-center justify-between mb-32"
-                 x-intersect="$el.classList.add('active')">
-    
-                <div class="md:w-1/2 md:pr-12 text-center md:text-right content">
-                    <h3 class="text-3xl font-serif text-gray-700">Little Moments 💫</h3>
-                    <p class="text-gray-500 mt-3 italic">It’s always the small things with you</p>
+
+            <div class="relative flex flex-col md:flex-row items-center justify-between group"
+                 x-data="{ shown: false }"
+                 x-intersect.margin.-10%="shown = true">
+                
+                <div class="w-full md:w-[45%] transition-all duration-1000 transform"
+                     :class="shown ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-20'">
+                    <div class="relative p-2 bg-white shadow-2xl rounded-3xl rotate-[-1deg]">
+                        <img src="./img/3.jpg" class="rounded-2xl w-full object-cover aspect-video">
+                    </div>
                 </div>
-    
-                <div class="dot"></div>
-    
-                <div class="md:w-1/2 md:pl-12 mt-6 md:mt-0 image">
-                    <img src="https://picsum.photos/500/350?random=5" class="rounded-2xl shadow-xl w-full max-w-md mx-auto">
-                </div>
-            </div>
-    
-            <!-- ITEM 6 -->
-            <div class="timeline-item reveal flex flex-col md:flex-row-reverse items-center justify-between mb-32"
-                 x-intersect="$el.classList.add('active')">
-    
-                <div class="md:w-1/2 md:pl-12 text-center md:text-left content">
-                    <h3 class="text-3xl font-serif text-gray-700">Us Forever ❤️</h3>
-                    <p class="text-gray-500 mt-3 italic">And this is just the beginning…</p>
-                </div>
-    
-                <div class="dot"></div>
-    
-                <div class="md:w-1/2 md:pr-12 mt-6 md:mt-0 image">
-                    <img src="https://picsum.photos/500/350?random=6" class="rounded-2xl shadow-xl w-full max-w-md mx-auto">
+
+                <div class="hidden md:block absolute left-1/2 -translate-x-1/2 w-4 h-4 bg-rose-300 rounded-full border-4 border-white z-10"></div>
+
+                <div class="w-full md:w-[45%] mt-8 md:mt-0 text-center md:text-left transition-all duration-1000 delay-200"
+                     :class="shown ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-20'">
+                    <span class="text-rose-300 font-bold tracking-widest text-sm">JANUARY 2026</span>
+                    <h3 class="text-3xl font-serif text-gray-800 mt-2">First Trip</h3>
+                    <p class="text-gray-500 mt-4 leading-relaxed italic">Traveling the world is easy when your world is standing right next to you.</p>
                 </div>
             </div>
-    
-            <!-- Continue -->
-            <button @click="step = 'beginning'"
-                class="mx-auto block bg-rose-400 text-white px-12 py-4 rounded-full font-bold shadow-xl hover:scale-105 transition">
-                Continue →
+        </div>
+
+        <div class="mt-32 text-center">
+            <button @click="step = 'beginning'" 
+                    class="bg-rose-400 text-white px-12 py-4 rounded-full font-bold shadow-xl hover:scale-105 hover:bg-rose-500 transition-all active:scale-95">
+                Our Story Continues... →
             </button>
-    
         </div>
-    </section>
+    </div>
+</section>
 
-    <section x-show="step === 'beginning'" class="h-screen flex flex-col items-center justify-center text-center px-6 bg-white">
-        <div class="max-w-2xl">
-            <span class="text-rose-300 text-5xl mb-8 block">✨</span>
-            <h2 class="text-5xl font-serif italic mb-6 text-gray-700">These 4 months were just the beginning...</h2>
-            <p class="text-gray-400 tracking-wide mb-12">Of a lifetime of love, laughter, and endless adventures together.</p>
-            <button @click="step = 'game'" class="text-rose-400 font-bold hover:underline">Continue to something special...</button>
-        </div>
-    </section>
+<section x-show="step === 'beginning'" 
+         class="h-screen w-full flex flex-col items-center justify-end pb-16 md:pb-24 text-center px-6 relative overflow-hidden bg-cover bg-center transition-all duration-1000"
+         style="background-image: url('./img/beach_pic.jpg');"> 
+    
+    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-0"></div>
+
+    <div class="max-w-2xl z-10 p-6 rounded-3xl animate-fade-in-up">
+        <h2 class="text-3xl md:text-5xl font-stylish text-white mb-2 drop-shadow-lg leading-tight">
+            If this is how the beginning feels…
+        </h2>
+        
+        <p class="text-lg md:text-xl font-serif italic text-rose-200 mb-6 drop-shadow-md">
+            I can’t wait to see what forever with you looks like ❤️
+        </p>
+
+        <p class="text-xs md:text-sm text-white/70 tracking-[0.3em] mb-8 uppercase font-light leading-loose max-w-md mx-auto">
+            Because every day with you has already <br> 
+            Been So beautiful... <br> 
+            That I wish i could live it all over again ❤️ 
+        </p>
+
+        <button @click="step = 'game'" 
+                class="bg-white/10 backdrop-blur-md border border-white/30 text-white px-8 py-3 rounded-full text-sm font-bold tracking-widest hover:bg-rose-500 hover:border-rose-500 transition-all duration-500 active:scale-95">
+            Continue to something special...
+        </button>
+    </div>
+</section>
 
     <section x-show="step === 'game'" x-init="$nextTick(() => $el.focus())" tabindex="0" class="h-screen flex flex-col items-center justify-center bg-blue-50 p-6 outline-none">
         <div class="max-w-4xl w-full text-center mb-4">
@@ -299,6 +378,8 @@
     <script>
         function loveStory() {
             return {
+                timeLeft: { d: '00', h: '00', m: '00' },
+                targetDate: new Date("June 4, 2026 07:00:00").getTime(),
                 step: 'landing', unlockDate: '',
                 charX: 50, charY: 10, coins: 0,
                 isJumping: false,
@@ -309,10 +390,30 @@
                     { q: "Who wins every argument?", a: ["You", "Definitely You", "Me (In my dreams)"] },
                     { q: "Ready for our big day?", a: ["Yes!", "Absolutely!", "I can't wait!"] }
                 ],
+
+                startTimer() {
+                    setInterval(() => {
+                        const now = new Date().getTime();
+                        const distance = this.targetDate - now;
+                        if (distance < 0) return;
+
+                        this.timeLeft.d = Math.floor(distance / (1000 * 60 * 60 * 24));
+                        this.timeLeft.h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                        this.timeLeft.m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    }, 1000);
+                },
+                
                 goBack() {
-                    const steps = ['landing', 'unlock', 'journey', 'beginning', 'game', 'passcode'];
+                    const steps = ['landing', 'countdown', 'unlock', 'journey', 'beginning', 'game', 'passcode'];
                     const i = steps.indexOf(this.step);
-                    if(i > 0) this.step = steps[i-1];
+                    // If we are on the countdown, go back to landing
+                    if (this.step === 'countdown') {
+                        this.step = 'landing';
+                    } 
+                    // Otherwise, go to the previous step in the list
+                    else if (i > 0) {
+                        this.step = steps[i - 1];
+                    }
                 },
                 verifyDate() { 
                     if(this.unlockDate === '23/11/2025') this.step = 'journey'; 
