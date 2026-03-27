@@ -173,6 +173,15 @@
         }
     }
 
+    @keyframes scaleIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+    }
+
+    .scale-in {
+        animation: scaleIn 0.3s ease;
+    }
+
     </style>
 </head>
 <body x-data="loveStory()" @keydown="handleGameInput($event)" tabindex="0">
@@ -210,6 +219,14 @@
     <button @click="step = 'countdown'" class="border-2 border-rose-300 text-rose-400 px-10 py-3 rounded-full font-semibold hover:bg-rose-50/50 hover:scale-105 transition-all duration-300 text-sm tracking-widest uppercase">
         View Our Countdown ⏳
     </button>
+<button 
+    @click="fromLandingPhotoBooth = true; step = 'photobooth'; startCamera()"
+    class="mt-2 bg-white/20 backdrop-blur-md border border-white/40 text-rose-500 px-8 py-3 rounded-full text-sm font-bold 
+           transition-all duration-300 shadow-lg
+           hover:bg-rose-400 hover:text-white hover:scale-110 hover:shadow-[0_0_25px_rgba(251,113,133,0.6)]
+           active:scale-95 active:shadow-[0_0_40px_rgba(251,113,133,0.9)]">
+    Photo Booth 📸
+</button>
 </div>
     </div>
 </section>
@@ -245,13 +262,51 @@
         <div class="text-rose-400 text-6xl mb-6 floating-3d">🔒</div>
         <h2 class="text-3xl font-serif mb-2 text-gray-800">Unlock Our Story</h2>
         <p class="text-xs text-rose-300 mb-8 font-bold tracking-widest uppercase">Hint: Our Engagement Date</p>
-        <input type="text" x-model="unlockDate" placeholder="DD/MM/YYYY" 
-               class="w-full bg-transparent border-b-2 border-rose-200 p-4 mb-10 text-center text-2xl tracking-widest focus:outline-none focus:border-rose-400 text-gray-700 transition-colors">
+        <input 
+            type="text" 
+            x-model="unlockDate" 
+            @input="formatDate($event)"
+            maxlength="10"
+            placeholder="DD/MM/YYYY"
+            class="w-full bg-transparent border-b-2 border-rose-200 p-4 mb-10 text-center text-2xl tracking-widest focus:outline-none focus:border-rose-400 text-gray-700 transition-colors">
         <button @click="verifyDate()" 
                 class="w-full bg-rose-400 text-white py-5 rounded-2xl shadow-lg font-bold hover:scale-105 hover:bg-rose-500 transition-all duration-300">
             Unlock
         </button>
     </div>
+    <div x-show="showUnlockError" 
+     x-transition:enter="transition cubic-bezier(0.34, 1.56, 0.64, 1) duration-600"
+     x-transition:enter-start="opacity-0 scale-50 rotate-12"
+     x-transition:enter-end="opacity-100 scale-100 rotate-0"
+     x-transition:leave="transition ease-in duration-200"
+     x-transition:leave-start="opacity-100 scale-100 rotate-0"
+     x-transition:leave-end="opacity-0 scale-50 rotate-12"
+     class="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-rose-900/20 backdrop-blur-sm"
+     style="display: none;">
+    
+    <div class="bg-white/70 backdrop-blur-3xl p-10 rounded-[60px] text-center max-w-sm border-2 border-white/80 shadow-[0_40px_80px_-15px_rgba(0,0,0,0.1)]">
+        
+        <div class="relative inline-block mb-8">
+            <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJueGZueGZueGZueGZueGZueGZueGZueGZueGZueGZueGZueGZueCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/ISOckXUybVfQ4/giphy.gif" 
+                 class="w-36 h-36 rounded-[40px] object-cover border-4 border-white shadow-md">
+        </div>
+
+        
+        <div class="space-y-4 mb-10">
+            <p class="text-gray-800 font-serif italic text-xl leading-relaxed">
+                Oh sweetheart, try again!
+            </p>
+            <p class="text-[11px] uppercase tracking-[0.4em] font-black text-rose-500">
+                Think of our engagement day! ❤️
+            </p>
+        </div>
+
+        <button @click="showUnlockError = false; unlockDate = ''" 
+                class="w-full py-5 bg-rose-500 text-white rounded-3xl font-bold tracking-widest text-sm shadow-lg hover:bg-rose-600 hover:scale-[1.05] active:scale-95 transition-all uppercase">
+            Let me try again 💍
+        </button>
+    </div>
+</div>
 </section>
 
 
@@ -358,84 +413,368 @@
 </div>
 </section>
 
-<section x-show="step === 'journey'" class="min-h-screen py-20 bg-white relative overflow-hidden">
-    
+<section x-show="step === 'journey'" class="min-h-screen py-20 bg-gradient-to-b from-rose-50 to-white relative overflow-hidden">
+    <div class="absolute top-0 -left-20 w-72 h-72 bg-rose-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
+<div class="absolute bottom-0 -right-20 w-96 h-96 bg-pink-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30"></div>
     <h2 class="text-center text-6xl font-stylish mb-20 text-rose-400">Our Journey Together</h2>
 
     <div class="max-w-6xl mx-auto px-6 relative">
         <div class="hidden md:block absolute left-1/2 top-0 bottom-0 w-0.5 bg-pink-100 -translate-x-1/2"></div>
 
         <div class="space-y-24">
-            <div class="relative flex flex-col md:flex-row items-center justify-between group"
-                 x-data="{ shown: false }"
-                 x-intersect.margin.-10%="shown = true">
-                
-                <div class="w-full md:w-[45%] transition-all duration-1000 transform"
-                     :class="shown ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-20'">
-                    <div class="relative p-2 bg-white shadow-2xl rounded-3xl rotate-[-2deg]">
-                        <img src="./img/1.jpg" class="rounded-2xl w-full object-cover aspect-video" onerror="this.src='https://picsum.photos/400/300?random=1'">
+            
+            <div class="relative flex flex-col md:flex-row items-center justify-between group" x-data="{ shown: false }" x-intersect.margin.-10%="shown = true">
+                <div class="w-full md:w-[35%] transition-all duration-1000 transform" :class="shown ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'">
+                    <div class="relative p-3 bg-white shadow-xl rounded-2xl rotate-[-2deg] border border-pink-50 max-w-[320px] mx-auto">
+                        <div class="overflow-hidden rounded-xl h-[380px] w-full">
+                            <img src="./img/2ndmeet.jpg" class="w-full h-full object-cover object-top" onerror="this.src='https://picsum.photos/400/600?random=1'">
+                        </div>
+                        <div class="pt-3 text-center"><span class="text-rose-200 text-xl">❤</span></div>
                     </div>
                 </div>
-
                 <div class="hidden md:block absolute left-1/2 -translate-x-1/2 w-4 h-4 bg-rose-300 rounded-full border-4 border-white z-10"></div>
+                <div class="w-full md:w-[45%] mt-8 md:mt-0 text-center md:text-left transition-all duration-1000 delay-200" :class="shown ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-20'">
+                    <span class="text-rose-300 font-bold tracking-widest text-sm">31 OCTOBER 2025</span>
+                    <h3 class="text-3xl font-serif text-gray-800 mt-2">Second meetup</h3>
+                    <p class="text-gray-500 mt-4 leading-relaxed italic">Second time, but it already felt like something meant to last.</p>
+                </div>
+            </div>
 
-                <div class="w-full md:w-[45%] mt-8 md:mt-0 text-center md:text-left transition-all duration-1000 delay-200"
-                     :class="shown ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-20'">
+            <div class="relative flex flex-col md:flex-row-reverse items-center justify-between group" x-data="{ shown: false }" x-intersect.margin.-10%="shown = true">
+                <div class="w-full md:w-[35%] transition-all duration-1000 transform" :class="shown ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'">
+                    <div class="relative p-3 bg-white shadow-xl rounded-2xl rotate-[2deg] border border-pink-50 max-w-[320px] mx-auto">
+                        <div class="overflow-hidden rounded-xl h-[380px] w-full">
+                            <img src="./img/date1.jpg" class="w-full h-full object-cover object-top" onerror="this.src='https://picsum.photos/400/600?random=2'">
+                        </div>
+                        <div class="pt-3 text-center"><span class="text-rose-200 text-xl">❤</span></div>
+                    </div>
+                </div>
+                <div class="hidden md:block absolute left-1/2 -translate-x-1/2 w-4 h-4 bg-rose-300 rounded-full border-4 border-white z-10"></div>
+                <div class="w-full md:w-[45%] mt-8 md:mt-0 text-center md:text-right transition-all duration-1000 delay-200" :class="shown ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-20'">
+                    <span class="text-rose-300 font-bold tracking-widest text-sm">05 NOVEMBER 2025</span>
+                    <h3 class="text-3xl font-serif text-gray-800 mt-2">First Date</h3>
+                    <p class="text-gray-500 mt-4 leading-relaxed italic">where everything quietly began...</p>
+                </div>
+            </div>
+
+            <div class="relative flex flex-col md:flex-row items-center justify-between group" x-data="{ shown: false }" x-intersect.margin.-10%="shown = true">
+                <div class="w-full md:w-[35%] transition-all duration-1000 transform" :class="shown ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'">
+                    <div class="relative p-3 bg-white shadow-xl rounded-2xl rotate-[-1deg] border border-pink-50 max-w-[320px] mx-auto">
+                        <div class="overflow-hidden rounded-xl h-[380px] w-full">
+                            <img src="./img/ring.jpg" class="w-full h-full object-cover object-top" onerror="this.src='https://picsum.photos/400/600?random=3'">
+                        </div>
+                        <div class="pt-3 text-center"><span class="text-rose-200 text-xl">❤</span></div>
+                    </div>
+                </div>
+                <div class="hidden md:block absolute left-1/2 -translate-x-1/2 w-4 h-4 bg-rose-300 rounded-full border-4 border-white z-10"></div>
+                <div class="w-full md:w-[45%] mt-8 md:mt-0 text-center md:text-left transition-all duration-1000 delay-200" :class="shown ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-20'">
                     <span class="text-rose-300 font-bold tracking-widest text-sm">23 NOVEMBER 2025</span>
-                    <h3 class="text-3xl font-serif text-gray-800 mt-2">The Day We Engaged</h3>
-                    <p class="text-gray-500 mt-4 leading-relaxed italic">The moment I knew "forever" wasn't long enough with you.</p>
+                    <h3 class="text-3xl font-serif text-gray-800 mt-2">Engagement</h3>
+                    <p class="text-gray-500 mt-4 leading-relaxed italic">A promise made, a forever begun.....</p>
                 </div>
             </div>
 
-            <div class="relative flex flex-col md:flex-row-reverse items-center justify-between group"
-                 x-data="{ shown: false }"
-                 x-intersect.margin.-10%="shown = true">
-                
-                <div class="w-full md:w-[45%] transition-all duration-1000 transform"
-                     :class="shown ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-20'">
-                    <div class="relative p-2 bg-white shadow-2xl rounded-3xl rotate-[2deg]">
-                        <img src="./img/2.png" class="rounded-2xl w-full object-cover aspect-video">
+            <div class="relative flex flex-col md:flex-row-reverse items-center justify-between group" x-data="{ shown: false }" x-intersect.margin.-10%="shown = true">
+                <div class="w-full md:w-[35%] transition-all duration-1000 transform" :class="shown ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'">
+                    <div class="relative p-3 bg-white shadow-xl rounded-2xl rotate-[3deg] border border-pink-50 max-w-[320px] mx-auto">
+                        <div class="overflow-hidden rounded-xl h-[380px] w-full">
+                            <img src="./img/goku_bd.jpg" class="w-full h-full object-cover object-top" onerror="this.src='https://picsum.photos/400/600?random=4'"></div>
+                        <div class="pt-3 text-center"><span class="text-rose-200 text-xl">❤</span></div>
                     </div>
                 </div>
-
                 <div class="hidden md:block absolute left-1/2 -translate-x-1/2 w-4 h-4 bg-rose-300 rounded-full border-4 border-white z-10"></div>
-
-                <div class="w-full md:w-[45%] mt-8 md:mt-0 text-center md:text-right transition-all duration-1000 delay-200"
-                     :class="shown ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-20'">
-                    <span class="text-rose-300 font-bold tracking-widest text-sm">DECEMBER 2025</span>
-                    <h3 class="text-3xl font-serif text-gray-800 mt-2">First Sunset</h3>
-                    <p class="text-gray-500 mt-4 leading-relaxed italic">Watching the sky change colors, but I couldn't take my eyes off you.</p>
+                <div class="w-full md:w-[45%] mt-8 md:mt-0 text-center md:text-right" :class="shown ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-20'">
+                    <span class="text-rose-300 font-bold tracking-widest text-sm">27 NOVEMBER 2025</span>
+                    <h3 class="text-3xl font-serif text-gray-800 mt-2">Gokul B-Day</h3>
+                    <p class="text-gray-500 mt-4 italic">You made my day feel more special than I ever imagined..</p>
                 </div>
             </div>
 
-            <div class="relative flex flex-col md:flex-row items-center justify-between group"
-                 x-data="{ shown: false }"
-                 x-intersect.margin.-10%="shown = true">
-                
-                <div class="w-full md:w-[45%] transition-all duration-1000 transform"
-                     :class="shown ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-20'">
-                    <div class="relative p-2 bg-white shadow-2xl rounded-3xl rotate-[-1deg]">
-                        <img src="./img/3.jpg" class="rounded-2xl w-full object-cover aspect-video">
+            <div class="relative flex flex-col md:flex-row items-center justify-between group" x-data="{ shown: false }" x-intersect.margin.-10%="shown = true">
+                <div class="w-full md:w-[35%] transition-all duration-1000 transform" :class="shown ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'">
+                    <div class="relative p-3 bg-white shadow-xl rounded-2xl rotate-[-2deg] border border-pink-50 max-w-[320px] mx-auto">
+                        <div class="overflow-hidden rounded-xl h-[380px] w-full">
+                            <img src="./img/sandhu_bd.jpg" class="w-full h-full object-cover object-top" onerror="this.src='https://picsum.photos/400/600?random=5'"></div>
+                        <div class="pt-3 text-center"><span class="text-rose-200 text-xl">❤</span></div>
                     </div>
                 </div>
-
                 <div class="hidden md:block absolute left-1/2 -translate-x-1/2 w-4 h-4 bg-rose-300 rounded-full border-4 border-white z-10"></div>
-
-                <div class="w-full md:w-[45%] mt-8 md:mt-0 text-center md:text-left transition-all duration-1000 delay-200"
-                     :class="shown ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-20'">
-                    <span class="text-rose-300 font-bold tracking-widest text-sm">JANUARY 2026</span>
-                    <h3 class="text-3xl font-serif text-gray-800 mt-2">First Trip</h3>
-                    <p class="text-gray-500 mt-4 leading-relaxed italic">Traveling the world is easy when your world is standing right next to you.</p>
+                <div class="w-full md:w-[45%] mt-8 md:mt-0 text-center md:text-left" :class="shown ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-20'">
+                    <span class="text-rose-300 font-bold tracking-widest text-sm">19 DECEMBER 2025</span>
+                    <h3 class="text-3xl font-serif text-gray-800 mt-2">Sandhiya B-Day</h3>
+                    <p class="text-gray-500 mt-4 italic">Celebrating the one who makes every day of mine beautiful....</p>
                 </div>
             </div>
+
+            <div class="relative flex flex-col md:flex-row-reverse items-center justify-between group" x-data="{ shown: false }" x-intersect.margin.-10%="shown = true">
+                <div class="w-full md:w-[35%] transition-all duration-1000 transform" :class="shown ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'">
+                    <div class="relative p-3 bg-white shadow-xl rounded-2xl rotate-[1deg] border border-pink-50 max-w-[320px] mx-auto">
+                        <div class="overflow-hidden rounded-xl h-[380px] w-full">
+                            <img src="./img/dec22.jpg" class="w-full h-full object-cover object-top" onerror="this.src='https://picsum.photos/400/600?random=6'"></div>
+                        <div class="pt-3 text-center"><span class="text-rose-200 text-xl">❤</span></div>
+                    </div>
+                </div>
+                <div class="hidden md:block absolute left-1/2 -translate-x-1/2 w-4 h-4 bg-rose-300 rounded-full border-4 border-white z-10"></div>
+                <div class="w-full md:w-[45%] mt-8 md:mt-0 text-center md:text-right" :class="shown ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-20'">
+                    <span class="text-rose-300 font-bold tracking-widest text-sm">22 DECEMBER 2025</span>
+                    <h3 class="text-3xl font-serif text-gray-800 mt-2">Evening timeout</h3>
+                    <p class="text-gray-500 mt-4 italic">Just a simple evening, made perfect by being with her....</p>
+                </div>
+            </div>
+
+            <div class="relative flex flex-col md:flex-row items-center justify-between group" x-data="{ shown: false }" x-intersect.margin.-10%="shown = true">
+                <div class="w-full md:w-[35%] transition-all duration-1000 transform" :class="shown ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'">
+                    <div class="relative p-3 bg-white shadow-xl rounded-2xl rotate-[-3deg] border border-pink-50 max-w-[320px] mx-auto">
+                        <div class="overflow-hidden rounded-xl h-[380px] w-full">
+                            <img src="./img/gudi.jpg" class="w-full h-full object-cover object-top" onerror="this.src='https://picsum.photos/400/600?random=7'"></div>
+                        <div class="pt-3 text-center"><span class="text-rose-200 text-xl">❤</span></div>
+                    </div>
+                </div>
+                <div class="hidden md:block absolute left-1/2 -translate-x-1/2 w-4 h-4 bg-rose-300 rounded-full border-4 border-white z-10"></div>
+                <div class="w-full md:w-[45%] mt-8 md:mt-0 text-center md:text-left" :class="shown ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-20'">
+                    <span class="text-rose-300 font-bold tracking-widest text-sm">18 JANUARY 2026</span>
+                    <h3 class="text-3xl font-serif text-gray-800 mt-2">Marriage hall visit</h3>
+                    <p class="text-gray-500 mt-4 italic">Walking through the place where our forever will begin...</p>
+                </div>
+            </div>
+
+            <div class="relative flex flex-col md:flex-row-reverse items-center justify-between group" x-data="{ shown: false }" x-intersect.margin.-10%="shown = true">
+                <div class="w-full md:w-[35%] transition-all duration-1000 transform" :class="shown ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'">
+                    <div class="relative p-3 bg-white shadow-xl rounded-2xl rotate-[2deg] border border-pink-50 max-w-[320px] mx-auto">
+                        <div class="overflow-hidden rounded-xl h-[380px] w-full">
+                            <img src="./img/bnglr.jpg" class="w-full h-full object-cover object-top" onerror="this.src='https://picsum.photos/400/600?random=8'"></div>
+                        <div class="pt-3 text-center"><span class="text-rose-200 text-xl">❤</span></div>
+                    </div>
+                </div>
+                <div class="hidden md:block absolute left-1/2 -translate-x-1/2 w-4 h-4 bg-rose-300 rounded-full border-4 border-white z-10"></div>
+                <div class="w-full md:w-[45%] mt-8 md:mt-0 text-center md:text-right" :class="shown ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-20'">
+                    <span class="text-rose-300 font-bold tracking-widest text-sm">25 JANUARY 2026</span>
+                    <h3 class="text-3xl font-serif text-gray-800 mt-2">Bangalore Send off</h3>
+                    <p class="text-gray-500 mt-4 italic">A goodbye that only made me miss you more.</p>
+                </div>
+            </div>
+
+            <div class="relative flex flex-col md:flex-row items-center justify-between group" x-data="{ shown: false }" x-intersect.margin.-10%="shown = true">
+                <div class="w-full md:w-[35%] transition-all duration-1000 transform" :class="shown ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'">
+                    <div class="relative p-3 bg-white shadow-xl rounded-2xl rotate-[-1deg] border border-pink-50 max-w-[320px] mx-auto">
+                        <div class="overflow-hidden rounded-xl h-[380px] w-full">
+                            <img src="./img/val.jpg" class="w-full h-full object-cover object-top" onerror="this.src='https://picsum.photos/400/600?random=9'"></div>
+                        <div class="pt-3 text-center"><span class="text-rose-200 text-xl">❤</span></div>
+                    </div>
+                </div>
+                <div class="hidden md:block absolute left-1/2 -translate-x-1/2 w-4 h-4 bg-rose-300 rounded-full border-4 border-white z-10"></div>
+                <div class="w-full md:w-[45%] mt-8 md:mt-0 text-center md:text-left" :class="shown ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-20'">
+                    <span class="text-rose-300 font-bold tracking-widest text-sm">14 FEBRUARY 2026</span>
+                    <h3 class="text-3xl font-serif text-gray-800 mt-2">Valentine's day</h3>
+                    <p class="text-gray-500 mt-4 italic">One day, a million little moments with you...</p>
+                </div>
+            </div>
+
+            <div class="relative flex flex-col md:flex-row-reverse items-center justify-between group" x-data="{ shown: false }" x-intersect.margin.-10%="shown = true">
+                <div class="w-full md:w-[35%] transition-all duration-1000 transform" :class="shown ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'">
+                    <div class="relative p-3 bg-white shadow-xl rounded-2xl rotate-[3deg] border border-pink-50 max-w-[320px] mx-auto">
+                        <div class="overflow-hidden rounded-xl h-[380px] w-full">
+                            <img src="./img/ps.png" class="w-full h-full object-cover object-top" onerror="this.src='https://picsum.photos/400/600?random=10'"></div>
+                        <div class="pt-3 text-center"><span class="text-rose-200 text-xl">❤</span></div>
+                    </div>
+                </div>
+                <div class="hidden md:block absolute left-1/2 -translate-x-1/2 w-4 h-4 bg-rose-300 rounded-full border-4 border-white z-10"></div>
+                <div class="w-full md:w-[45%] mt-8 md:mt-0 text-center md:text-right" :class="shown ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-20'">
+                    <span class="text-rose-300 font-bold tracking-widest text-sm">16 FEBRUARY 2026</span>
+                    <h3 class="text-3xl font-serif text-gray-800 mt-2">Pre Wedding Shoot...</h3>
+                    <p class="text-gray-500 mt-4 italic">Captured moments, but the real magic was being together....</p>
+                </div>
+            </div>
+
         </div>
 
         <div class="mt-32 text-center">
-<button @click="step = 'beginning'" 
-        class="bg-rose-400 text-white px-12 py-4 rounded-full font-bold shadow-xl hover:scale-105 hover:bg-rose-500 transition-all active:scale-95">
-    Our Story Continues...
-</button>
+            <button @click="startQuestions()" class="bg-rose-400 text-white px-12 py-4 rounded-full font-bold shadow-xl hover:scale-105 hover:bg-rose-500 transition-all active:scale-95">
+                Our Story Continues...
+            </button>
         </div>
+    </div>
+</section>
+
+<section x-show="step === 'interactiveQuestions'" 
+         class="min-h-screen flex items-center justify-center p-6 bg-[#2D0B1F] relative overflow-hidden">
+    
+    <div class="glass-card max-w-2xl w-full p-8 md:p-12 rounded-[40px] border-maroon-800/30 bg-maroon-950/40 backdrop-blur-xl shadow-2xl relative z-10 text-white text-center">
+        
+        <div x-show="currentQ === 1" class="scale-in">
+            <!-- <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHJueGZueGZueGZueGZueGZueGZueGZueGZueGZueGZueGZueGZueCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/L2S72vL0nBeO4/giphy.gif" class="w-32 h-32 mx-auto rounded-2xl mb-6 border-2 border-rose-500/30"> -->
+            <h2 class="text-3xl font-serif mb-8 text-rose-200">“So… how does it feel being stuck with me now?”</h2>
+            <div class="grid gap-4">
+                <button @click="selectedReply = 'Escape option expired the moment you said yes 😌💍'; selectedGif = './img/so_sad.gif'" class="w-full py-4 rounded-2xl bg-maroon-900/50 border border-maroon-700 hover:bg-rose-500 hover:scale-105 transition-all font-semibold">Too late to escape 😏</button>
+                <button @click="selectedReply = 'Kinda’?? Wow… I see how it is. We’ll revisit this after marriage 😏😂'; selectedGif = './img/oh_oh.gif'" class="w-full py-4 rounded-2xl bg-maroon-900/50 border border-maroon-700 hover:bg-rose-500 hover:scale-105 transition-all font-semibold">Kinda good 😌</button>
+                <button @click="selectedReply = 'Great!!!! .....I’ll keep making sure you always feel that way ❤️'; selectedGif = './img/happy.gif'" class="w-full py-4 rounded-2xl bg-maroon-900/50 border border-maroon-700 hover:bg-rose-500 hover:scale-105 transition-all font-semibold">Exactly where I want to be ❤️</button>
+            </div>
+        </div>
+
+        <div x-show="currentQ === 2" class="scale-in">
+            <!-- <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHJueGZueGZueGZueGZueGZueGZueGZueGZueGZueGZueGZueGZueCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/v6aOjy0VeoR8dAqpZz/giphy.gif" class="w-32 h-32 mx-auto rounded-2xl mb-6 border-2 border-rose-500/30"> -->
+            <h2 class="text-3xl font-serif mb-8 text-rose-200">“Who is the bigger CB?”</h2>
+            <div class="grid gap-4">
+                <button @click="selectedReply = 'Ahh… brave answer. I respect it… 😂❤️'; selectedGif = './img/yes.gif'" class="w-full py-4 rounded-2xl bg-maroon-900/50 border border-maroon-700 hover:bg-rose-500 hover:scale-105 transition-all font-semibold">Me 😏</button>
+                <button @click="selectedReply = 'Oh hello.....I prefer the term ‘emotionally invested’ 😌😂'; selectedGif = './img/angry.gif'" class="w-full py-4 rounded-2xl bg-maroon-900/50 border border-maroon-700 hover:bg-rose-500 hover:scale-105 transition-all font-semibold">You 😌</button>
+                <button @click="selectedReply = 'Oh Really?...yeah I already knew'; selectedGif = './img/knew.gif'" class="w-full py-4 rounded-2xl bg-maroon-900/50 border border-maroon-700 hover:bg-rose-500 hover:scale-105 transition-all font-semibold">Both… but I’ll never admit it 😂❤️</button>
+            </div>
+        </div>
+
+        <div x-show="currentQ === 3" class="scale-in">
+            <!-- <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHJueGZueGZueGZueGZueGZueGZueGZueGZueGZueGZueGZueGZueCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/MDJ9IbxxvDUQM/giphy.gif" class="w-32 h-32 mx-auto rounded-2xl mb-6 border-2 border-rose-500/30"> -->
+            <h2 class="text-3xl font-serif mb-8 text-rose-200">Will you marry me?</h2>
+            <div class="relative w-full">
+                <div class="grid gap-4 relative">
+
+    <!-- YES -->
+    <button @click="selectedReply = 'Only ‘yes’? I expected fireworks, tears, background music 😤❤️'; selectedGif = './img/happy2.gif'"
+        class="w-full py-4 rounded-2xl bg-maroon-900/50 border border-maroon-700 hover:bg-rose-500 hover:scale-105 transition-all font-semibold">
+        Yes ❤️
+    </button>
+
+    <!-- THOUSAND YES -->
+<button 
+    @click="selectedReply = 'hurray!! Every chapter we write feels better than the one we just closed❤️'; 
+             selectedGif = './img/happy3.gif'"
+    class="w-full py-4 rounded-2xl bg-maroon-900/50 border border-maroon-700 hover:bg-rose-500 hover:scale-105 transition-all font-semibold" >
+    
+    A thousand times YES 😭💍❤️
+</button>
+
+    <!-- NO BUTTON -->
+<button 
+    @mouseenter="toggleNo()"
+    @click.prevent
+    :class="noDown ? 'translate-y-20' : 'translate-y-0'"
+    class="w-full py-4 rounded-2xl bg-gray-800/50 border border-gray-600 font-bold text-white transition-all duration-300 ease-in-out">
+    No 😤
+</button>
+
+</div>
+            </div>
+        </div>
+
+<div x-show="selectedReply" 
+     x-transition
+     class="absolute inset-0 bg-[#1a0511]/95 z-20 flex flex-col items-center justify-center p-6 md:p-10 rounded-[40px] text-center">
+
+    <div class="max-w-md w-full flex flex-col items-center">
+
+        <img :src="selectedGif" 
+     class="max-h-52 w-auto rounded-2xl mb-6 border-2 border-rose-500 shadow-lg bg-black/20 p-2 object-contain">
+
+        <p class="text-lg md:text-xl font-serif italic text-rose-200 mb-8 leading-relaxed">
+            <span x-text="selectedReply"></span>
+        </p>
+
+        <div class="flex gap-4 flex-wrap justify-center">
+            <button 
+                @click="selectedReply = ''" 
+                class="px-6 py-2 rounded-full border border-rose-400 text-rose-400 text-sm font-bold hover:bg-rose-400 hover:text-white transition-all">
+                Try another
+            </button>
+
+            <button 
+                @click="if(currentQ < 3) { currentQ++; selectedReply = ''; } else { step = step = 'beginning'; }"
+                class="px-8 py-2 rounded-full bg-rose-500 text-white text-sm font-bold hover:scale-110 shadow-lg transition-all">
+                Next →
+            </button>
+        </div>
+
+    </div>
+</div>
+    </div>
+</section>
+
+
+<section x-show="step === 'photobooth'" 
+         class="min-h-screen flex flex-col items-center justify-center bg-pink-animate p-6 relative">
+
+    <div class="glass-card p-8 rounded-[40px] text-center max-w-3xl w-full border border-white/40 shadow-2xl">
+        
+        <h2 class="text-4xl font-stylish text-rose-400 mb-6">
+            Capture the moment 📸❤️
+        </h2>
+
+        <div class="relative bg-black rounded-3xl overflow-hidden mb-6 border-8 border-gray-900 shadow-inner">
+            <video x-ref="video" autoplay playsinline 
+                   :class="filter === 'grayscale' ? 'grayscale' : (filter === 'sepia' ? 'sepia' : '')"
+                   class="w-full h-[400px] object-cover transition-all duration-500"></video>
+
+            <div x-show="countdown === 0 && isCapturing"
+                 x-transition:enter="transition opacity-0"
+                 x-transition:enter-end="opacity-100"
+                 class="absolute inset-0 bg-white z-50"></div>
+
+            <div x-show="countdown > 0"
+                 class="absolute inset-0 flex items-center justify-center text-white text-8xl font-bold bg-black/40 backdrop-blur-sm">
+                <span x-text="countdown" class="animate-ping"></span>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div class="bg-white/40 p-4 rounded-2xl">
+                <p class="text-xs font-bold text-rose-400 uppercase tracking-widest mb-3">1. Select Style</p>
+<div class="flex justify-center gap-3 mb-4">
+    <button @click="filter='none'" 
+        :class="filter==='none' ? 'bg-rose-400 text-white scale-105' : 'bg-white/50'"
+        class="px-4 py-2 rounded-full transition-all">
+        Normal
+    </button>
+
+    <button @click="filter='grayscale'" 
+        :class="filter==='grayscale' ? 'bg-rose-400 text-white scale-105' : 'bg-white/50'"
+        class="px-4 py-2 rounded-full transition-all">
+        B&W
+    </button>
+
+    <button @click="filter='sepia'" 
+        :class="filter==='sepia' ? 'bg-rose-400 text-white scale-105' : 'bg-white/50'"
+        class="px-4 py-2 rounded-full transition-all">
+        Vintage
+    </button>
+</div>
+        </div>
+
+            <div class="bg-white/40 p-4 rounded-2xl">
+                <p class="text-xs font-bold text-rose-400 uppercase tracking-widest mb-3">2. Select Format</p>
+                    <div class="flex justify-center gap-4 mb-6">
+                        <button @click="mode='single'" 
+                            :class="mode==='single' ? 'bg-rose-400 text-white' : 'bg-white/70 text-rose-500'"
+                            class="px-6 py-3 rounded-full font-bold transition-all">
+                            Single Mode 📷
+                        </button>
+
+                        <button @click="mode='strip'" 
+                            :class="mode==='strip' ? 'bg-rose-400 text-white' : 'bg-white/70 text-rose-500'"
+                            class="px-6 py-3 rounded-full font-bold transition-all">
+                            Strip Mode 🎞️
+                        </button>
+                    </div>
+            </div>
+        </div>
+        <button 
+            @click="mode==='single' ? capturePhoto() : captureStrip()" 
+            class="bg-black text-white px-10 py-4 rounded-full font-bold shadow-lg hover:scale-110 transition-all">
+            Capture ❤️
+        </button>
+
+
+        <div x-show="finalImage" x-transition class="mt-12 p-4 bg-gray-900 rounded-xl shadow-2xl">
+            <img :src="finalImage" class="mx-auto max-h-[500px] rounded shadow-lg border-2 border-gray-800">
+
+            <div class="flex gap-4 justify-center mt-6">
+                <button @click="resetBooth()" class="px-6 py-2 bg-white/20 text-white rounded-full text-sm font-bold hover:bg-white/30 transition-all">Retake 🔄</button>
+                <button @click="downloadImage()" class="px-8 py-2 bg-rose-500 text-white rounded-full text-sm font-bold shadow-lg hover:bg-rose-600 transition-all">Download ⬇️</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="absolute top-6 right-6" x-show="!fromLandingPhotoBooth">
+        <button @click="step = 'beginning'" class="bg-white/30 backdrop-blur-md text-rose-500 px-5 py-2 rounded-full text-xs font-bold border border-white/40 hover:bg-white/50 transition-all">
+            Skip ➡️
+        </button>
     </div>
 </section>
 
@@ -515,16 +854,43 @@
             <p class="text-sm text-gray-400">Walk to the very end to collect the letter! 💌</p>
         </div>
 
-        <div x-show="showQuiz" class="fixed inset-0 bg-black/70 flex items-center justify-center z-[200] backdrop-blur-sm">
-            <div class="bg-white p-10 rounded-3xl text-center max-w-sm shadow-2xl border-4 border-rose-100">
-                <p class="text-2xl font-bold mb-8 text-gray-800" x-text="quiz[coins] ? quiz[coins].q : ''"></p>
-                <div class="space-y-4">
-                    <template x-for="a in (quiz[coins] ? quiz[coins].a : [])">
-                        <button @click="ansQuiz()" class="w-full border-2 border-rose-100 p-4 rounded-xl font-bold hover:bg-rose-500 hover:text-white transition-all" x-text="a"></button>
-                    </template>
-                </div>
+<div x-show="showQuiz" class="fixed inset-0 bg-black/70 flex items-center justify-center z-[200] backdrop-blur-sm">
+    <div class="bg-white p-10 rounded-[40px] text-center max-w-lg w-full shadow-2xl border-4 border-rose-100 mx-4">
+        
+        <template x-if="quiz[coins]?.image">
+            <div class="w-full h-64 md:h-80 bg-rose-50 rounded-3xl mb-8 overflow-hidden border-2 border-rose-100 flex items-center justify-center">
+                <img :src="quiz[coins].image" class="w-full h-full object-contain p-2">
             </div>
+        </template>
+
+        <p class="text-2xl md:text-3xl font-bold mb-8 text-gray-800 font-serif" x-text="quiz[coins] ? quiz[coins].q : ''"></p>
+        
+        <div class="space-y-4">
+            <template x-for="(a, index) in (quiz[coins] ? quiz[coins].a : [])">
+                <button @click="ansQuiz(index)" 
+                        class="w-full border-2 border-rose-100 p-5 rounded-2xl font-bold text-gray-700 hover:bg-rose-500 hover:text-white hover:border-rose-500 transition-all shadow-sm active:scale-95" 
+                        x-text="a"></button>
+            </template>
         </div>
+    </div>
+</div>
+<div x-show="showGameError" 
+     x-transition:enter="transition ease-out duration-300"
+     x-transition:enter-start="opacity-0 scale-90"
+     x-transition:enter-end="opacity-100 scale-100"
+     class="fixed inset-0 z-[250] flex items-center justify-center p-6 bg-rose-900/40 backdrop-blur-md">
+    
+    <div class="bg-white p-8 rounded-[30px] text-center max-w-xs shadow-2xl border-2 border-rose-100">
+        <div class="text-4xl mb-4">🥺</div>
+        <h3 class="text-xl font-serif text-gray-800 mb-2">Oh no, my love!</h3>
+        <p class="text-gray-500 text-sm mb-6">That's not quite right... Think again! ❤️</p>
+        
+        <button @click="showGameError = false" 
+                class="w-full py-3 bg-rose-400 text-white rounded-xl font-bold shadow-md hover:bg-rose-500 transition-all active:scale-95">
+            Try Again 💍
+        </button>
+    </div>
+</div>
     </section>
 
     <section x-show="step === 'passcode'" class="h-screen flex flex-col items-center justify-center bg-pink-50 p-6">
@@ -548,6 +914,20 @@
     <script>
         function loveStory() {
             return {
+                fromLandingPhotoBooth: false,
+                videoStream: null,
+                capturedImages: [],
+                mode: 'single', // 'single' or 'strip'
+                isCapturing: false,
+                countdown: 0,
+                filter: 'none', // none, grayscale, sepia
+                finalImage: null,
+                noDown: false,
+                currentQ: 1,
+                selectedReply: '',
+                selectedGif: '', // New state for response GIFs
+                noButtonPos: { x: 0, y: 0 },
+                showUnlockError: false,
                 showSurpriseMessage: false,
                 showCatSuccess: false,
                 timeLeft: { d: '00', h: '00', m: '00', s: '00' },
@@ -558,10 +938,66 @@
                 showQuiz: false, gameWinMessage: false,
                 pass: '', letterOpen: false,
                 quiz: [
-                    { q: "Where was our first date?", a: ["Café", "Beach", "Park"] },
-                    { q: "Who wins every argument?", a: ["You", "Definitely You", "Me (In my dreams)"] },
-                    { q: "Ready for our big day?", a: ["Yes!", "Absolutely!", "I can't wait!"] }
+                    { 
+                        q: "Where was this pic taken?", 
+                        image: "./img/cam1.jpg", // Path to your first journey image
+                        a: ["Kathipara", "Theatre", "Perungudi"], 
+                        correct: 2
+                    },
+                    { 
+                        q: "Our first ride was on?", 
+                        a: ["Bike", "Activa", "Car"], 
+                        correct: 1 
+                    },
+                    { 
+                        q: "Ready for our big day?", 
+                        a: ["Yes!", "Absolutely!", "I can't wait!"], 
+                        correct: "all" // Special flag for the last question
+                    }
                 ],
+
+moveNoButton(el) {
+    const container = el.parentElement;
+
+    const maxX = container.offsetWidth - el.offsetWidth;
+    const maxY = container.offsetHeight - el.offsetHeight;
+
+    const randomX = Math.random() * maxX;
+    const randomY = Math.random() * maxY;
+
+    el.style.position = "absolute";
+    el.style.left = randomX + "px";
+    el.style.top = randomY + "px";
+},
+toggleNo() {
+    this.noDown = !this.noDown;
+},
+init() {
+    this.$watch('step', (value) => {
+        if (value !== 'photobooth') {
+            this.stopCamera();
+        }
+    });
+},
+startCamera() {
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+            this.videoStream = stream;
+            this.$refs.video.srcObject = stream;
+        })
+        .catch(() => {
+            alert("Camera access denied 😢 Please allow camera to use Photo Booth.");
+        });
+},
+
+
+
+                startQuestions() {
+                    this.step = 'interactiveQuestions';
+                    this.currentQ = 1;
+                    this.selectedReply = '';
+                    this.fromLandingPhotoBooth = false;
+                },
 
                 startTimer() {
                     setInterval(() => {
@@ -589,38 +1025,233 @@
                     }, 50) // Adjust speed here (50ms * 100 = 5 seconds)
                 },
                 
-                goBack() {
-                    if (this.step === 'unlock' || this.step === 'countdown') {
-                        this.step = 'landing';
-                        return;
+
+
+
+                startCamera() {
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+            this.videoStream = stream;
+            this.$refs.video.srcObject = stream;
+        });
+},
+
+applyFilter(ctx, canvas) {
+    if (this.filter === 'grayscale') ctx.filter = 'grayscale(100%)';
+    else if (this.filter === 'sepia') ctx.filter = 'sepia(100%)';
+    else ctx.filter = 'none';
+},
+
+capturePhoto() {
+    this.countdown = 3;
+    let interval = setInterval(() => {
+        this.countdown--;
+        if (this.countdown === 0) {
+            clearInterval(interval);
+            this.takeSnapshot();
+        }
+    }, 1000);
+},
+
+takeSnapshot() {
+    const video = this.$refs.video;
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext('2d');
+
+    this.applyFilter(ctx, canvas);
+    ctx.drawImage(video, 0, 0);
+
+    this.finalImage = this.addFrame(canvas);
+},
+
+captureStrip() {
+    this.capturedImages = [];
+    let shots = 3;
+    let take = () => {
+        if (shots === 0) {
+            this.finalImage = this.combineStrip();
+            return;
+        }
+
+        this.countdown = 3;
+        let interval = setInterval(() => {
+            this.countdown--;
+            if (this.countdown === 0) {
+                clearInterval(interval);
+
+                const video = this.$refs.video;
+                const canvas = document.createElement('canvas');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                const ctx = canvas.getContext('2d');
+
+                this.applyFilter(ctx, canvas);
+                ctx.drawImage(video, 0, 0);
+
+                this.capturedImages.push(canvas);
+                shots--;
+                take();
+            }
+        }, 1000);
+    };
+    take();
+},
+
+combineStrip() {
+const width = 420;   // 🔥 wider photos
+const height = 400;
+
+    const filmWidth = width + 120; 
+    const filmHeight = (height * this.capturedImages.length) + 120;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = filmWidth;
+    canvas.height = filmHeight;
+
+    const ctx = canvas.getContext('2d');
+
+    // black film base
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, filmWidth, filmHeight);
+
+    // perforations
+    for (let i = 20; i < filmHeight; i += 40) {
+        ctx.fillStyle = "white";
+        ctx.fillRect(10, i, 10, 20);
+        ctx.fillRect(filmWidth - 20, i, 10, 20);
+    }
+
+    // images
+    this.capturedImages.forEach((img, i) => {
+        ctx.drawImage(img, 60, 40 + i * height, width, height);
+    });
+
+    return canvas.toDataURL("image/png");
+},
+
+addFrame(canvas) {
+    const framed = document.createElement('canvas');
+    const ctx = framed.getContext('2d');
+
+    const filmWidth = canvas.width + 80;
+    const filmHeight = canvas.height + 120;
+
+    framed.width = filmWidth;
+    framed.height = filmHeight;
+
+    // black background
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, filmWidth, filmHeight);
+
+    // side perforations
+    for (let i = 20; i < filmHeight; i += 40) {
+        ctx.fillStyle = "white";
+        ctx.fillRect(10, i, 10, 20);
+        ctx.fillRect(filmWidth - 20, i, 10, 20);
+    }
+
+    // draw image center
+    ctx.drawImage(canvas, 40, 40, canvas.width, canvas.height);
+
+    // bottom text
+    ctx.fillStyle = "white";
+    ctx.font = "18px monospace";
+    ctx.textAlign = "center";
+    ctx.fillText("❤️", filmWidth / 2, filmHeight - 20);
+
+    return framed.toDataURL("image/png");
+},
+
+downloadImage() {
+    const a = document.createElement('a');
+    a.href = this.finalImage;
+    a.download = "photobooth.png";
+    a.click();
+},
+
+resetBooth() {
+    this.finalImage = null;
+    this.capturedImages = [];
+},
+                
+goBack() {
+
+    // Landing children
+    if (this.step === 'unlock' || this.step === 'countdown') {
+        this.step = 'landing';
+        return;
+    }
+
+    // Photo Booth (ONLY from landing now)
+    if (this.step === 'photobooth') {
+        this.step = 'landing';
+        this.stopCamera();
+        return;
+    }
+
+    // Questions
+    if (this.step === 'interactiveQuestions') {
+        if (this.selectedReply) {
+            this.selectedReply = '';
+        } else if (this.currentQ > 1) {
+            this.currentQ--;
+        } else {
+            this.step = 'journey';
+        }
+        return;
+    }
+
+    // Beginning (Beach)
+    if (this.step === 'beginning') {
+        this.step = 'interactiveQuestions'; // go back to Q3
+        this.currentQ = 3;
+        return;
+    }
+
+    // Game flow
+    if (this.step === 'game') {
+        this.step = 'beginning';
+        return;
+    }
+
+    if (this.step === 'passcode') {
+        this.step = 'game';
+        return;
+    }
+
+    // Default fallback
+    const steps = ['landing', 'unlock', 'journey', 'interactiveQuestions', 'beginning', 'game', 'passcode'];
+    const i = steps.indexOf(this.step);
+    if (i > 0) {
+        this.step = steps[i - 1];
+    }
+},
+stopCamera() {
+    if (this.videoStream) {
+        this.videoStream.getTracks().forEach(track => track.stop());
+        this.videoStream = null;
+    }
+},
+                formatDate(e) {
+                    let value = e.target.value.replace(/\D/g, ''); // only digits
+
+                    if (value.length >= 2) {
+                        value = value.slice(0, 2) + '/' + value.slice(2);
                     }
-                    
-                    // Updated: Go back to journey from the beginning section
-                    if (this.step === 'beginning') {
-                        this.step = 'journey';
-                        return;
+                    if (value.length >= 5) {
+                        value = value.slice(0, 5) + '/' + value.slice(5, 9);
                     }
 
-                    if (this.step === 'game') {
-                        this.step = 'beginning';
-                        return;
-                    }
-
-                    if (this.step === 'passcode') {
-                        this.step = 'game';
-                        return;
-                    }
-
-                    // Default Linear Fallback (Optional: remove 'prequiz' from the array below)
-                    const steps = ['landing', 'unlock', 'journey', 'beginning', 'game', 'passcode'];
-                    const i = steps.indexOf(this.step);
-                    if (i > 0) {
-                        this.step = steps[i - 1];
-                    }
+                    this.unlockDate = value;
                 },
                 verifyDate() { 
-                    if(this.unlockDate === '23/11/2025') this.step = 'journey'; 
-                    else alert("Oh sweetheart, try again! Think of our big day! ❤️");
+                    if (this.unlockDate.trim() === '23/11/2025') {
+                        this.step = 'journey'; 
+                    } else {
+                        this.showUnlockError = true;   // ONLY show modal
+                    }
                 },
                 handleGameInput(e) {
                     if(this.step !== 'game' || this.showQuiz) return;
@@ -679,15 +1310,24 @@
                         this.showQuiz = true;
                     }
                 },
-                ansQuiz() {
-                    this.showQuiz = false;
-                    this.coins++;
-                    if(this.coins === 3) this.gameWinMessage = true;
-                },
+ansQuiz(selectedIndex) {
+    let currentQuiz = this.quiz[this.coins];
+    
+    if (currentQuiz.correct === "all" || selectedIndex === currentQuiz.correct) {
+        this.showQuiz = false;
+        this.showGameError = false; // Hide error if it was open
+        this.coins++;
+        if(this.coins === 3) this.gameWinMessage = true;
+    } else {
+        // Show our custom romantic error popup
+        this.showGameError = true;
+    }
+},
                 checkPass() {
                     if(this.pass === 'usforever') this.letterOpen = true;
                     else alert("Wrong code! 😉");
                 }
+
             }
         }
     </script>
