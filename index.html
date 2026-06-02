@@ -336,7 +336,7 @@
     </div>
 
 <div class="absolute bottom-10 left-0 right-0 flex flex-col items-center justify-center z-20 cursor-pointer group" 
-     @click="showSurpriseMessage = true">
+     @click="showGiftPasscode = true">
     <div class="text-5xl animate-bounce transition-transform duration-500 group-hover:scale-125 group-hover:rotate-12">
         🎁
     </div>
@@ -409,6 +409,85 @@
                 <div class="bg-rose-400 h-full animate-[progress_3.5s_linear]"></div>
             </div>
         </div>
+    </div>
+</div>
+
+
+<div x-show="showGiftPasscode"
+     class="fixed inset-0 z-[300] flex items-center justify-center bg-black/50 backdrop-blur-md"
+     @click.self="showGiftPasscode = false">
+
+    <div class="bg-white p-10 md:p-16 rounded-3xl shadow-2xl max-w-4xl w-[95%] mx-4 max-h-[90vh] overflow-y-auto">
+
+        <!-- PASSCODE SCREEN -->
+        <div x-show="!giftLetterOpen">
+            <div class="text-center">
+                <div class="text-5xl mb-4">🎁❤️</div>
+
+                <h3 class="text-2xl font-serif mb-6">
+                    You are here Finally !!
+                </h3>
+
+                <input
+                    type="password"
+                    x-model="giftPass"
+                    placeholder="Enter Passcode"
+                    class="w-full border-2 border-rose-200 rounded-xl p-4 text-center mb-6">
+
+                <button
+                    @click="
+                        if(giftPass.toLowerCase() === 'withlove4thjune'){
+                            giftLetterOpen = true;
+                        } else {
+                            alert('Wrong passcode ❤️');
+                        }
+                    "
+                    class="w-full bg-rose-500 text-white py-4 rounded-xl font-bold">
+                    Unlock
+                </button>
+            </div>
+        </div>
+
+        <!-- LETTER SCREEN -->
+        <div x-show="giftLetterOpen" class="bg-[#fffdf8] p-6 md:p-12 rounded-2xl border border-rose-100">
+            <h2 class="text-6xl font-stylish text-rose-500 mb-10 text-center">
+                For My Love ❤️
+            </h2>
+
+            <div class="font-serif text-gray-700 leading-9 space-y-6 max-w-3xl mx-auto text-left">
+                <p>
+Hiiii Chellam,</p>
+<p>
+If you are reading this then the countdown finally reached zero..... too soon... right ?
+</p><p>
+The thing is... when I wrote this note... there were still weeks left before our marriage..... Somewhere in the past... I'm sitting in front of my laptop smiling at our photos and missing you...........
+</p>
+<p>
+This website was never really about the countdown , pictures or the quiz..... It was about us.... About every little memory that brought us here.... and all the moments that somehow turned into a life I never knew I wanted until I met you.....
+</p>
+<p>
+You know...... one of the most beautiful things you have given me isn't something that can fit inside a gift box..... It's the person I have become because of you...... You have made me happier than I ever thought I could be.... you have shaped me into a better version of myself.....
+</p>
+<p>
+And I think that's your magic....
+</p>
+<p>
+Thank you for loving me....... And thank you for making my life more beautiful than I ever imagined it could be.
+</p>
+<p>
+Also... more to go ...next update in bali trip...
+</p>
+
+With Love Gokul
+                </p>
+
+                <p class="text-right pt-6">
+                    With Love,<br>
+                    Gokul ❤️
+                </p>
+            </div>
+        </div>
+
     </div>
 </div>
 </section>
@@ -920,6 +999,9 @@ Love you ❤️</p>
     <script>
         function loveStory() {
             return {
+                showGiftPasscode: false,
+giftPass: '',
+giftLetterOpen: false,
                 fromLandingPhotoBooth: false,
                 videoStream: null,
                 capturedImages: [],
